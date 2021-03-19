@@ -1,0 +1,87 @@
+# Shreya Deshmukh
+
+# The Sparks Foundation
+# Topic:  To predict the optimum number of clusters and represent it visually, from the given ‘Iris’ dataset.
+
+import matplotlib.pyplot as pt
+from sklearn import datasets
+import pandas as pd
+import numpy as np
+from sklearn.cluster import KMeans
+from mpl_toolkits.mplot3d import Axes3D
+from scipy.cluster.hierarchy import linkage,dendrogram
+from sklearn.cluster import DBSCAN 
+from sklearn.decomposition import PCA
+import matplotlib.patches as mpatches
+import sklearn.metrics as sm
+
+iris = datasets.load_iris()
+
+iris = datasets.load_iris()
+
+print(iris.target)
+
+print(iris.data)
+
+x = iris.data
+y = iris.target
+
+fig = pt.figure(1, figsize=(7,5))
+ax = Axes3D(fig, rect=[0, 0, 0.95, 1], elev=48, azim=134)
+ax.scatter(x[:, 3], x[:, 0], x[:, 2], edgecolor="k", s=50)
+ax.set_xlabel("Petal width")
+ax.set_ylabel("Sepal length")
+ax.set_zlabel("Petal length")
+pt.title("Iris Clustering K Means=3", fontsize=14)
+pt.show()
+
+hier=linkage(x,"ward")
+max_d=7.08
+pt.figure(figsize=(15,8))
+pt.title('Iris Hierarchical Clustering Dendrogram')
+pt.xlabel('Species')
+pt.ylabel('distance')
+dendrogram(
+    hier,
+    truncate_mode='lastp',  
+    p=50,                  
+    leaf_rotation=90.,      
+    leaf_font_size=8.,     
+)
+pt.axhline(y=max_d, c='k')
+pt.show()
+
+
+x = pd.DataFrame(iris.data, columns=['Sepal Length', 'Sepal Width', 'Petal Length', 'Petal Width'])
+y = pd.DataFrame(iris.target, columns=['Target'])
+x.head()
+
+y.head()
+
+iris_k_mean = KMeans(n_clusters=3)
+iris_k_mean.fit(x)
+
+print(iris_k_mean.labels_)
+print(iris_k_mean.cluster_centers_)
+
+pt.figure(figsize=(14,6))
+
+colors = np.array(['red', 'green', 'blue'])
+
+predictedY = np.choose(iris_k_mean.labels_, [1, 0, 2]).astype(np.int64)
+
+pt.subplot(1, 2, 1)
+pt.scatter(x['Petal Length'], x['Petal Width'], c=colors[y['Target']])
+pt.title('Before classification')
+#pt.legend(handles=[red_patch, green_patch, blue_patch])
+
+pt.subplot(1, 2, 2)
+pt.scatter(x['Petal Length'], x['Petal Width'], c=colors[predictedY])
+pt.title("Model's classification")
+#pt.legend(handles=[red_patch, green_patch, blue_patch])
+
+sm.accuracy_score(predictedY, y['Target'])
+
+sm.confusion_matrix(predictedY, y['Target'])
+
+
